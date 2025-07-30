@@ -1,4 +1,4 @@
-package com.jperez.lydia.ui.theme
+package com.jperez.lydia.presentation.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
