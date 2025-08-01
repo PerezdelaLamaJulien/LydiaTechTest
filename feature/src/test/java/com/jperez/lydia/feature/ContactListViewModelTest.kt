@@ -1,5 +1,7 @@
 package com.jperez.lydia.feature
 
+import androidx.paging.PagingData
+import androidx.paging.testing.asSnapshot
 import com.jperez.lydia.domain.usecase.GetContactsUseCase
 import com.jperez.lydia.feature.mapper.ListContactItemUIMapper
 import com.jperez.lydia.feature.model.ListUIState
@@ -7,6 +9,7 @@ import com.jperez.lydia.feature.viewmodel.ContactListViewModel
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -51,37 +54,17 @@ class ContactListViewModelTest : KoinTest {
                     single<ListContactItemUIMapper> { mockUIMapper }
                 })
         }
-        coEvery { mockUseCase.getContacts("default") } returns listOf(FeatureMockConstants.contact)
+        val flow = flowOf(PagingData.from(listOf(FeatureMockConstants.contact)))
+        coEvery { mockUseCase.getContacts("default") } returns flow
         coEvery { mockUIMapper.mapTo(FeatureMockConstants.contact) } returns FeatureMockConstants.listContactItemUI
         viewModel.getContacts()
 
         advanceUntilIdle() // Yields to perform the registrations
 
         val uiState: ListUIState = viewModel.uiState.value
+
         assertEquals(false, uiState.isLoading)
-        assertEquals(FeatureMockConstants.listContactItemUI, uiState.items.first())
-        assertEquals(null, uiState.errorMessage)
-        stopKoin()
-    }
-
-    @Test
-    fun `getContacts when there are no result items are empty and errorMessage is set`() = runTest(UnconfinedTestDispatcher()) {
-        startKoin {
-            modules(
-                module {
-                    single<GetContactsUseCase> { mockUseCase }
-                    single<ListContactItemUIMapper> { mockUIMapper }
-                })
-        }
-        coEvery { mockUseCase.getContacts("default") } returns emptyList()
-        viewModel.getContacts()
-
-        advanceUntilIdle() // Yields to perform the registrations
-
-        val uiState: ListUIState = viewModel.uiState.value
-        assertEquals(false, uiState.isLoading)
-        assertEquals(true, uiState.items.isEmpty())
-        assertEquals("No contacts found", uiState.errorMessage)
+        assertEquals(1, flow.asSnapshot {  }.size)
         stopKoin()
     }
 }

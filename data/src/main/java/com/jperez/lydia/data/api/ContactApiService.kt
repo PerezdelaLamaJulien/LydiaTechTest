@@ -15,6 +15,6 @@ interface ContactApiService {
      * @return An [APIResponseATO] containing the list of contacts [ContactATO] and info of call [APIResponseInfoATO] .
      */
     @GET("1.3/")
-    suspend fun getContacts(@Query("seed") seed: String): APIResponseATO
+    suspend fun getContacts(@Query("seed") seed: String, @Query("page") page: Int, @Query("results") pageSize: Int): APIResponseATO
 
 }

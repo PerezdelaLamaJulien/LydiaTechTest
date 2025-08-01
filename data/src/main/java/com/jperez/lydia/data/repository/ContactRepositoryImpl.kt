@@ -1,14 +1,24 @@
 package com.jperez.lydia.data.repository
 
-import com.jperez.lydia.data.api.ApiClient
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
 import com.jperez.lydia.data.model.ContactATO
-import org.koin.java.KoinJavaComponent.inject
+import com.jperez.lydia.data.paging.ContactPagingSource
+import kotlinx.coroutines.flow.Flow
 
 class ContactRepositoryImpl : ContactRepository {
-    private val apiClient: ApiClient by inject(ApiClient::class.java)
 
-    override suspend fun getContacts(seed: String): List<ContactATO> {
-        val response = apiClient.getContacts(seed)
-        return response.results
+    override suspend fun getContacts(seed: String): Flow<PagingData<ContactATO>> {
+        return Pager(
+            config = PagingConfig(
+                pageSize = 20,
+                initialLoadSize = 20,
+                prefetchDistance = 10
+                ),
+            pagingSourceFactory = {
+                ContactPagingSource(seed)
+            }
+        ).flow
     }
 }

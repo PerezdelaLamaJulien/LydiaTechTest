@@ -30,7 +30,7 @@ class DomainMockConstants {
                 city = "Limoges",
                 state = "Puy-de-Dôme",
                 country = "France",
-                postCode = 53806,
+                postCode = "53806",
                 coordinates = ContactLocationCoordinatesATO(
                     latitude = "-3.9384",
                     longitude = "-81.7879"
