@@ -1,8 +1,12 @@
 package com.jperez.lydia.domain.usecase
 
+import androidx.paging.PagingData
+import androidx.paging.map
 import com.jperez.lydia.data.repository.ContactRepository
 import com.jperez.lydia.domain.mapper.ContactMapper
 import com.jperez.lydia.domain.model.Contact
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import org.koin.java.KoinJavaComponent.inject
 
 /**
@@ -24,10 +28,10 @@ class GetContactsUseCase {
      * @param seed A seed value to generate a consistent set of contacts.
      * @return A list of [Contact] objects.
      */
-    suspend fun getContacts(seed: String): List<Contact> {
+    suspend fun getContacts(seed: String): Flow<PagingData<Contact>> {
         val contacts = repository.getContacts(seed)
-        return contacts.map { contact ->
-            mapper.mapTo(contact)
+        return contacts.map { pagingData ->
+            pagingData.map { contact -> mapper.mapTo(contact) }
         }
     }
 }

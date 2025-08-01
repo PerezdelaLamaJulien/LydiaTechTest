@@ -22,7 +22,7 @@ class DataMockConstants {
             version = "1.0",
         )
 
-        private val contactATO = ContactATO(
+        val contactATO = ContactATO(
             gender = "male",
             name = ContactNameATO(
                 title = "Mr",
@@ -37,7 +37,7 @@ class DataMockConstants {
                 city = "Limoges",
                 state = "Puy-de-Dôme",
                 country = "France",
-                postCode = 53806,
+                postCode = "53806",
                 coordinates = ContactLocationCoordinatesATO(
                     latitude = "-3.9384",
                     longitude = "-81.7879"

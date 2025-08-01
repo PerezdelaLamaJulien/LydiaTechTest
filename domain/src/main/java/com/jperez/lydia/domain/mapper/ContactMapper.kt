@@ -25,7 +25,7 @@ class ContactMapper {
             city = ato.location.city,
             state = ato.location.state,
             country = ato.location.country,
-            postCode = ato.location.postCode.toString(),
+            postCode = ato.location.postCode,
             street = "${ato.location.street.number} ${ato.location.street.name}",
             age = ato.dateOfBirth.age,
             dateOfBirth = Instant.parse(ato.dateOfBirth.date),

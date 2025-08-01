@@ -20,11 +20,11 @@ private val retrofit = Retrofit.Builder()
  * A public Api object that exposes the lazy-initialized Retrofit service
  */
 class ApiClient {
-    val retrofitService: ContactApiService by lazy {
+    private val retrofitService: ContactApiService by lazy {
         retrofit.create(ContactApiService::class.java)
     }
 
-    suspend fun getContacts(seed: String): APIResponseATO {
-        return retrofitService.getContacts(seed)
+    suspend fun getContacts(seed: String, page: Int, pageSize: Int): APIResponseATO {
+        return retrofitService.getContacts(seed, page, pageSize)
     }
 }
