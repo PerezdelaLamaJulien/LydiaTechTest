@@ -1,13 +1,12 @@
 package com.jperez.lydia.data
 
 import androidx.paging.PagingSource
-import com.jperez.lydia.data.datasource.ContactContactRemoteDataSource
+import com.jperez.lydia.data.datasource.ContactLocalDataSource
+import com.jperez.lydia.data.datasource.ContactRemoteDataSource
 import com.jperez.lydia.data.paging.ContactPagingSource
-import com.jperez.lydia.data.repository.ContactRepository
-import com.jperez.lydia.data.repository.ContactRepositoryImpl
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.mockk
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -24,16 +23,21 @@ import org.koin.test.KoinTest
  */
 
 class ContactPagingSourceTest : KoinTest {
-    private lateinit var mockContactContactRemoteDataSource: ContactContactRemoteDataSource
-    private lateinit var repository: ContactRepository
-
+    private lateinit var mockContactRemoteDataSource: ContactRemoteDataSource
+    private lateinit var mockContactLocalDataSource: ContactLocalDataSource
     private val pageLoadSize = 20
-    private val totalPage = 3
 
     @Before
     fun setUp() {
-        mockContactContactRemoteDataSource = mockk(relaxed = true)
-        repository = ContactRepositoryImpl()
+        mockContactRemoteDataSource = mockk(relaxed = true)
+        mockContactLocalDataSource = mockk(relaxed = true)
+        startKoin {
+            modules(
+                module {
+                    single<ContactRemoteDataSource> { mockContactRemoteDataSource }
+                    single<ContactLocalDataSource> { mockContactLocalDataSource }
+                })
+        }
     }
 
     @After
@@ -42,19 +46,14 @@ class ContactPagingSourceTest : KoinTest {
     }
 
     @Test
-    fun `test item loaded with refresh`() = runTest {
-        startKoin {
-            modules(
-                module {
-                    single<ContactContactRemoteDataSource> { mockContactContactRemoteDataSource }
-                })
-        }
-
-        coEvery { mockContactContactRemoteDataSource.getContacts(
-            seed = "default",
-            page = 1,
-            pageSize = pageLoadSize
-        ) } returns DataMockConstants.apiResponseATO
+    fun `test item loaded with refresh from locale database`() = runTest {
+        coEvery {
+            mockContactLocalDataSource.getRequestedContactFromDatabase(
+                seed = "default",
+                page = 1,
+                pageSize = pageLoadSize
+            )
+        } returns listOf(DataMockConstants.contactATO)
 
         val pagingSource = ContactPagingSource("default")
 
@@ -67,24 +66,96 @@ class ContactPagingSourceTest : KoinTest {
         val actualLoadResult = pagingSource.load(refreshLoadParams)
 
         assertTrue(actualLoadResult is PagingSource.LoadResult.Page)
-        assertEquals(DataMockConstants.contactATO, (actualLoadResult as PagingSource.LoadResult.Page).data.first() )
-        assertEquals(2, actualLoadResult.nextKey )
+        assertEquals(
+            DataMockConstants.contactATO,
+            (actualLoadResult as PagingSource.LoadResult.Page).data.first()
+        )
+        assertEquals(2, actualLoadResult.nextKey)
+        coVerify(exactly = 0) {
+            mockContactRemoteDataSource.getContacts(
+                seed = "default",
+                page = 1,
+                pageSize = pageLoadSize
+            )
+        }
+
+        coVerify(exactly = 1) {
+            mockContactLocalDataSource.getRequestedContactFromDatabase(
+                seed = "default",
+                page = 1,
+                pageSize = pageLoadSize
+            )
+        }
+    }
+
+    @Test
+    fun `test item loaded with refresh from remote datasource`() = runTest {
+        coEvery {
+            mockContactLocalDataSource.getRequestedContactFromDatabase(
+                seed = "default",
+                page = 1,
+                pageSize = pageLoadSize
+            )
+        } returns null
+
+        coEvery {
+            mockContactRemoteDataSource.getContacts(
+                seed = "default",
+                page = 1,
+                pageSize = pageLoadSize
+            )
+        } returns DataMockConstants.apiResponseATO
+
+
+        val pagingSource = ContactPagingSource("default")
+
+        val refreshLoadParams = PagingSource.LoadParams.Refresh<Int>(
+            key = null,
+            loadSize = pageLoadSize,
+            placeholdersEnabled = false
+        )
+
+        val actualLoadResult = pagingSource.load(refreshLoadParams)
+
+        assertTrue(actualLoadResult is PagingSource.LoadResult.Page)
+        assertEquals(
+            DataMockConstants.contactATO,
+            (actualLoadResult as PagingSource.LoadResult.Page).data.first()
+        )
+        assertEquals(2, actualLoadResult.nextKey)
+        coVerify(exactly = 1) {
+            mockContactRemoteDataSource.getContacts(
+                seed = "default",
+                page = 1,
+                pageSize = pageLoadSize
+            )
+        }
+        coVerify(exactly = 1) {
+            mockContactLocalDataSource.getRequestedContactFromDatabase(
+                seed = "default",
+                page = 1,
+                pageSize = pageLoadSize
+            )
+        }
+        coVerify(exactly = 1) {
+            mockContactLocalDataSource.saveContactsToDatabase(
+                seed = "default",
+                page = 1,
+                pageSize = pageLoadSize,
+                contacts = listOf(DataMockConstants.contactATO)
+            )
+        }
     }
 
     @Test
     fun `load result error with http exception`() = runTest {
-        startKoin {
-            modules(
-                module {
-                    single<ContactContactRemoteDataSource> { mockContactContactRemoteDataSource }
-                })
-        }
-
-        coEvery { mockContactContactRemoteDataSource.getContacts(
-            seed = "default",
-            page = 1,
-            pageSize = pageLoadSize
-        ) } throws Exception("Network error")
+        coEvery {
+            mockContactLocalDataSource.getRequestedContactFromDatabase(
+                seed = "default",
+                page = 1,
+                pageSize = pageLoadSize
+            )
+        } throws Exception("Network error")
 
         val pagingSource = ContactPagingSource("default")
 
@@ -97,5 +168,20 @@ class ContactPagingSourceTest : KoinTest {
         val actualLoadResult = pagingSource.load(refreshLoadParams)
 
         assertTrue(actualLoadResult is PagingSource.LoadResult.Error)
+        coVerify(exactly = 0) {
+            mockContactRemoteDataSource.getContacts(
+                seed = "default",
+                page = 1,
+                pageSize = pageLoadSize
+            )
+        }
+
+        coVerify(exactly = 1) {
+            mockContactLocalDataSource.getRequestedContactFromDatabase(
+                seed = "default",
+                page = 1,
+                pageSize = pageLoadSize
+            )
+        }
     }
 }

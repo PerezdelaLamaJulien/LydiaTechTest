@@ -1,8 +1,8 @@
 package com.jperez.lydia.data
 
 import com.jperez.lydia.data.api.ApiClient
-import com.jperez.lydia.data.datasource.ContactContactRemoteDataSource
-import com.jperez.lydia.data.datasource.ContactContactRemoteDataSourceImpl
+import com.jperez.lydia.data.datasource.ContactRemoteDataSource
+import com.jperez.lydia.data.datasource.ContactRemoteDataSourceImpl
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
@@ -17,16 +17,16 @@ import org.koin.test.KoinTest
 
 
 /**
- * Unit tests for the ContactContactRemoteDataSource class.
+ * Unit tests for the ContactRemoteDataSource class.
  */
-class ContactContactRemoteDataSourceTest : KoinTest {
+class ContactRemoteDataSourceTest : KoinTest {
     private lateinit var mockApiClient: ApiClient
-    private lateinit var remoteDataSource: ContactContactRemoteDataSource
+    private lateinit var remoteDataSource: ContactRemoteDataSource
 
     @Before
     fun setUp() {
         mockApiClient = mockk(relaxed = true)
-        remoteDataSource = ContactContactRemoteDataSourceImpl()
+        remoteDataSource = ContactRemoteDataSourceImpl()
     }
 
     @After

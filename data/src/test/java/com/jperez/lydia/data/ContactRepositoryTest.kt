@@ -1,7 +1,7 @@
 package com.jperez.lydia.data
 
 import androidx.paging.testing.asSnapshot
-import com.jperez.lydia.data.datasource.ContactContactRemoteDataSource
+import com.jperez.lydia.data.datasource.ContactRemoteDataSource
 import com.jperez.lydia.data.repository.ContactRepository
 import com.jperez.lydia.data.repository.ContactRepositoryImpl
 import io.mockk.coEvery
@@ -21,12 +21,12 @@ import org.koin.test.KoinTest
  * Unit tests for the ContactRepository class.
  */
 class ContactRepositoryTest : KoinTest {
-    private lateinit var mockContactContactRemoteDataSource: ContactContactRemoteDataSource
+    private lateinit var mockContactRemoteDataSource: ContactRemoteDataSource
     private lateinit var repository: ContactRepository
 
     @Before
     fun setUp() {
-        mockContactContactRemoteDataSource = mockk(relaxed = true)
+        mockContactRemoteDataSource = mockk(relaxed = true)
         repository = ContactRepositoryImpl()
     }
 
@@ -40,10 +40,10 @@ class ContactRepositoryTest : KoinTest {
         startKoin {
             modules(
                 module {
-                    single<ContactContactRemoteDataSource> { mockContactContactRemoteDataSource }
+                    single<ContactRemoteDataSource> { mockContactRemoteDataSource }
                 })
         }
-        coEvery { mockContactContactRemoteDataSource.getContacts("default", page= 1, pageSize = 20) } returns DataMockConstants.apiResponseATO
+        coEvery { mockContactRemoteDataSource.getContacts("default", page= 1, pageSize = 20) } returns DataMockConstants.apiResponseATO
 
         val result = repository.getContacts("default")
 
