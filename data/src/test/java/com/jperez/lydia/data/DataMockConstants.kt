@@ -12,10 +12,12 @@ import com.jperez.lydia.data.model.ContactLocationTimezoneATO
 import com.jperez.lydia.data.model.ContactLoginATO
 import com.jperez.lydia.data.model.ContactNameATO
 import com.jperez.lydia.data.model.ContactPictureATO
+import com.jperez.lydia.data.model.entity.ContactEntity
+import com.jperez.lydia.data.model.entity.PaginationInfoEntity
 
 class DataMockConstants {
     companion object {
-        private val apiResponseInfoATO = APIResponseInfoATO(
+        val apiResponseInfoATO = APIResponseInfoATO(
             seed = "seed",
             page = 1,
             results = 0,
@@ -79,9 +81,55 @@ class DataMockConstants {
             nat = "FR"
         )
 
+
+        val contactEntity = ContactEntity(
+            gender = "male",
+            title = "Mr",
+            firstName = "Marin",
+            lastName = "Meunier",
+            streetNumber = 815,
+            streetName = "Rue de la Gare",
+            city = "Limoges",
+            state = "Puy-de-Dôme",
+            country = "France",
+            postCode = "53806",
+            coordinatesLatitude = "-3.9384",
+            coordinatesLongitude = "-81.7879",
+            timeZoneOffset = "+9:00",
+            timeZoneDescription = "Tokyo, Seoul, Osaka, Sapporo, Yakutsk",
+            email = "marin.meunier@example.com",
+            uid = "9ae1a7c7-77df-48cd-a0bb-e1b0c3527058",
+            loginUsername = "sadpeacock902",
+            loginPassword = "1223",
+            loginSalt = "EB17IVYy",
+            loginMd5 = "5acba14df336f8b6e542ac5e482c1b3e",
+            loginSha1 = "53683ae46a7cea2d6c308d9ac5e47ebf36599898",
+            loginSha256 = "c5511590d3dca7f324872c0d9e959bdd073c65989c46a88db5e9f6c70a63932f",
+            dateOfBirth = "1949-06-16T15:54:25.494Z",
+            age = 76,
+            dateOfRegistration = "2015-01-31T06:11:25.576Z",
+            registrationAge = 10,
+            phone = "04-23-14-03-57",
+            cell = "06-46-24-26-68",
+            contactName = "INSEE",
+            contactValue = "1NNaN22049525 97",
+            largePicture = "https://randomuser.me/api/portraits/men/6.jpg",
+            mediumPicture = "https://randomuser.me/api/portraits/med/men/6.jpg",
+            thumbPicture = "https://randomuser.me/api/portraits/thumb/men/6.jpg",
+            nationality = "FR",
+            paginationInfo = "seed"
+        )
+
         val apiResponseATO = APIResponseATO(
             results = listOf(contactATO),
             info = apiResponseInfoATO
+        )
+
+        val paginationInfoEntity = PaginationInfoEntity(
+            uid = "pagination-id",
+            seed = "default",
+            page = 1,
+            pageSize = 10
         )
     }
 }

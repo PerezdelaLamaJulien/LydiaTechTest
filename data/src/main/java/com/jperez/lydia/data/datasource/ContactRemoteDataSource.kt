@@ -2,7 +2,7 @@ package com.jperez.lydia.data.datasource
 
 import com.jperez.lydia.data.model.APIResponseATO
 
-interface ContactContactRemoteDataSource {
+interface ContactRemoteDataSource {
 
     /**
      * Get a response from the API.
