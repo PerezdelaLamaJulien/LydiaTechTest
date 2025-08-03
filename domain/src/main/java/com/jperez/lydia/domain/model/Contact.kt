@@ -22,4 +22,6 @@ data class Contact(
     val largePicture: String,
     val mediumPicture: String,
     val thumbPicture: String,
+    val timezoneOffset: String,
+    val timezoneDescription: String,
     )

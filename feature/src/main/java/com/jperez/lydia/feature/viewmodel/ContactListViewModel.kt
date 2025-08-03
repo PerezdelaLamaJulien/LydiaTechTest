@@ -3,9 +3,8 @@ package com.jperez.lydia.feature.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
-import androidx.paging.map
 import com.jperez.lydia.domain.usecase.GetContactsUseCase
-import com.jperez.lydia.feature.mapper.ListContactItemUIMapper
+import com.jperez.lydia.feature.mapper.ContactListItemUIMapper
 import com.jperez.lydia.feature.model.ListUIState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -16,13 +15,12 @@ import org.koin.java.KoinJavaComponent.inject
  * ViewModel for managing the list of contacts.
  *
  * This ViewModel interacts with the [GetContactsUseCase] to fetch contacts
- * and uses [ListContactItemUIMapper] to map domain models to UI models.
+ * and uses [ContactListItemUIMapper] to map domain models to UI models.
  */
 
 class ContactListViewModel : ViewModel() {
 
     private val usecase: GetContactsUseCase by inject(GetContactsUseCase::class.java)
-    private val uiMapper: ListContactItemUIMapper by inject(ListContactItemUIMapper::class.java)
 
     private val _uiState = MutableStateFlow(ListUIState())
     val uiState: MutableStateFlow<ListUIState> = _uiState
@@ -45,7 +43,7 @@ class ContactListViewModel : ViewModel() {
                 .cachedIn(viewModelScope)
                 .collect { pagingData ->
                     _uiState.value = uiState.value.copy(
-                        items = pagingData.map { uiMapper.mapTo(it) },
+                        items = pagingData,
                         isLoading = false,
                     )
                 }

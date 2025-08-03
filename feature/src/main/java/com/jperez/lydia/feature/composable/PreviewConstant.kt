@@ -1,11 +1,9 @@
-package com.jperez.lydia.feature
+package com.jperez.lydia.feature.composable
 
 import com.jperez.lydia.domain.model.Contact
-import com.jperez.lydia.feature.model.ContactDetailUI
-import com.jperez.lydia.feature.model.ContactListItemUI
 import java.time.Instant
 
-class FeatureMockConstants {
+class PreviewConstant {
     companion object {
         val contact = Contact(
             gender = "male",
@@ -29,26 +27,6 @@ class FeatureMockConstants {
             thumbPicture = "https://randomuser.me/api/portraits/thumb/men/6.jpg",
             timezoneOffset = "+01:00",
             timezoneDescription = "Europe/Paris",
-        )
-
-        val contactListItemUI = ContactListItemUI(
-            name = "Marin Meunier",
-            imageUrl = "https://randomuser.me/api/portraits/men/6.jpg",
-            phone = "06-46-24-26-68",
-            mail = "marin.meunier@example.com"
-        )
-
-        val contactDetailUI = ContactDetailUI(
-            name = "Marin Meunier",
-            imageUrl = "https://randomuser.me/api/portraits/men/6.jpg",
-            phone = "06-46-24-26-68",
-            mail = "marin.meunier@example.com",
-            address = "815 Rue de la Gare",
-            city = "Limoges - 53806",
-            state = "Puy-de-Dôme",
-            country = "France",
-            timezoneInfo = "+01:00 - Europe/Paris",
-            birthInfo = "16 juin 1949 - 76 ans"
         )
     }
 }

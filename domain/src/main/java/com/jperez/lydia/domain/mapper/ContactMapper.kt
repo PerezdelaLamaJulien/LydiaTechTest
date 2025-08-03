@@ -36,5 +36,7 @@ class ContactMapper {
             largePicture = ato.picture.large,
             mediumPicture = ato.picture.medium,
             thumbPicture = ato.picture.thumbnail,
+            timezoneOffset = ato.location.timezone.offset,
+            timezoneDescription = ato.location.timezone.description,
         )
 }
