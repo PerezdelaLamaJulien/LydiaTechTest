@@ -1,120 +1,53 @@
 package com.jperez.lydia.feature.composable
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.ImeAction
-import androidx.paging.LoadState
-import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.compose.runtime.setValue
+import com.jperez.lydia.domain.model.Contact
 import com.jperez.lydia.feature.theme.LydiaTheme
-import com.jperez.lydia.feature.viewmodel.ContactListViewModel
-import kotlinx.coroutines.flow.flow
-import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun HomePageScreen(viewModel: ContactListViewModel = koinViewModel()) {
-    val state = viewModel.uiState.collectAsState()
-    val pagingItems = remember(state.value.items) {
-        flow {
-            emit(state.value.items)
-        }
-    }.collectAsLazyPagingItems()
-
+fun HomePageScreen() {
     LydiaTheme {
-        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-
-                val textFieldState = remember { mutableStateOf("") }
-
-                OutlinedTextField(
-                    value = textFieldState.value,
-                    onValueChange = { newText ->
-                        textFieldState.value = newText
-                    },
-                    label = { Text("Search Contacts") },
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    trailingIcon = {
-                        if( textFieldState.value.isNotEmpty()) {
-                            Row {
-                                IconButton(onClick = {
-                                    viewModel.getContacts(seed = textFieldState.value)
-                                }) {
-                                    Icon(Icons.Default.Search, contentDescription = "Search contacts")
-                                }
-
-                                IconButton(onClick = {
-                                    textFieldState.value = ""
-                                }) {
-                                    Icon(Icons.Default.Clear, contentDescription = "Clear textfield")
-                                }
-                            }
-                        }
-                    }
-                )
-
-                LazyColumn(modifier = Modifier.fillMaxHeight()) {
-                    items(pagingItems.itemCount) { index ->
-                        Greeting(
-                            pagingItems[index]!!.name
+        var contactDetail : Contact?  by remember {
+            mutableStateOf(null)
+        }
+            AnimatedContent(
+                contactDetail,
+                transitionSpec = {
+                    if (targetState != null) {
+                        (fadeIn() + slideInHorizontally(initialOffsetX = { it })).togetherWith(
+                            fadeOut() + slideOutHorizontally(targetOffsetX = { -it })
+                        )
+                    } else {
+                        (fadeIn() + slideInHorizontally(initialOffsetX = { -it })).togetherWith(
+                            fadeOut() + slideOutHorizontally(targetOffsetX = { it })
                         )
                     }
-                    pagingItems.apply {
-                        when {
-                            loadState.refresh is LoadState.Loading -> {
-                                item { Column(
-                                    modifier = Modifier.fillMaxSize(),
-                                    verticalArrangement = Arrangement.Center,
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    CircularProgressIndicator()
-                                } }
-                            }
-
-                            loadState.append is LoadState.Loading -> {
-                                item {  Column(
-                                    modifier = Modifier.fillMaxSize(),
-                                    verticalArrangement = Arrangement.Center,
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    CircularProgressIndicator()
-                                } }
-                            }
-
-
-                        }
-                    }
                 }
-
-            }
+            ) { targetState ->
+                if (targetState != null) {
+                    ContactDetailScreen(
+                        onBack = {
+                            contactDetail = null
+                        },
+                        contact = targetState,
+                    )
+                } else {
+                    ContactListScreen(
+                        onShowDetails = { selectedContact ->
+                            contactDetail = selectedContact
+                        },
+                    )
+                }
         }
     }
 }

@@ -1,8 +1,9 @@
 package com.jperez.lydia.feature.model
 
 import androidx.paging.PagingData
+import com.jperez.lydia.domain.model.Contact
 
 data class ListUIState(
-    val items: PagingData<ListContactItemUI> = PagingData.empty(),
+    val items: PagingData<Contact> = PagingData.empty(),
     val isLoading: Boolean = false,
     )

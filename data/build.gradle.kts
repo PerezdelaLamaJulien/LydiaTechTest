@@ -43,7 +43,6 @@ dependencies {
     implementation(libs.koin.android)
     implementation(libs.retrofit)
     implementation(libs.okhttp)
-    implementation(libs.coil.compose)
     implementation(libs.retrofit2.kotlinx.serialization.converter)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.coroutines.test)

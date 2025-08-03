@@ -3,7 +3,6 @@ package com.jperez.lydia.feature
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import com.jperez.lydia.domain.usecase.GetContactsUseCase
-import com.jperez.lydia.feature.mapper.ListContactItemUIMapper
 import com.jperez.lydia.feature.model.ListUIState
 import com.jperez.lydia.feature.viewmodel.ContactListViewModel
 import io.mockk.coEvery
@@ -30,7 +29,6 @@ import org.koin.test.KoinTest
 @OptIn(ExperimentalCoroutinesApi::class)
 class ContactListViewModelTest : KoinTest {
     private lateinit var mockUseCase: GetContactsUseCase
-    private lateinit var mockUIMapper: ListContactItemUIMapper
     private lateinit var viewModel: ContactListViewModel
 
     @ExperimentalCoroutinesApi
@@ -41,7 +39,6 @@ class ContactListViewModelTest : KoinTest {
     @Before
     fun setUp() {
         mockUseCase = mockk(relaxed = true)
-        mockUIMapper = mockk(relaxed = true)
         viewModel = ContactListViewModel()
     }
 
@@ -51,12 +48,10 @@ class ContactListViewModelTest : KoinTest {
             modules(
                 module {
                     single<GetContactsUseCase> { mockUseCase }
-                    single<ListContactItemUIMapper> { mockUIMapper }
                 })
         }
         val flow = flowOf(PagingData.from(listOf(FeatureMockConstants.contact)))
         coEvery { mockUseCase.getContacts("default") } returns flow
-        coEvery { mockUIMapper.mapTo(FeatureMockConstants.contact) } returns FeatureMockConstants.listContactItemUI
         viewModel.getContacts()
 
         advanceUntilIdle() // Yields to perform the registrations
