@@ -28,7 +28,7 @@ class GetContactsUseCase {
      * @param seed A seed value to generate a consistent set of contacts.
      * @return A list of [Contact] objects.
      */
-    suspend fun getContacts(seed: String): Flow<PagingData<Contact>> {
+    suspend fun execute(seed: String): Flow<PagingData<Contact>> {
         val contacts = repository.getContacts(seed)
         return contacts.map { pagingData ->
             pagingData.map { contact -> mapper.mapTo(contact) }

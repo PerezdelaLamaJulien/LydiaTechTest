@@ -92,6 +92,8 @@ class DomainMockConstants {
             largePicture = "https://randomuser.me/api/portraits/men/6.jpg",
             mediumPicture = "https://randomuser.me/api/portraits/med/men/6.jpg",
             thumbPicture = "https://randomuser.me/api/portraits/thumb/men/6.jpg",
+            timezoneOffset = "+9:00",
+            timezoneDescription = "Tokyo, Seoul, Osaka, Sapporo, Yakutsk",
         )
     }
 }

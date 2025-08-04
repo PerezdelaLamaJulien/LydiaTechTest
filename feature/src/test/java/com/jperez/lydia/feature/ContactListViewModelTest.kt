@@ -2,7 +2,9 @@ package com.jperez.lydia.feature
 
 import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
+import com.jperez.lydia.domain.usecase.DeleteSavedSeedUseCase
 import com.jperez.lydia.domain.usecase.GetContactsUseCase
+import com.jperez.lydia.domain.usecase.GetSavedSeedUseCase
 import com.jperez.lydia.feature.model.ListUIState
 import com.jperez.lydia.feature.viewmodel.ContactListViewModel
 import io.mockk.coEvery
@@ -12,6 +14,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
@@ -22,13 +25,14 @@ import org.koin.dsl.module
 import org.koin.test.KoinTest
 
 /**
- * Example local unit test, which will execute on the development machine (host).
- *
- * See [testing documentation](http://d.android.com/tools/testing).
+ * Unit test for [ContactListViewModel].
  */
+
 @OptIn(ExperimentalCoroutinesApi::class)
 class ContactListViewModelTest : KoinTest {
-    private lateinit var mockUseCase: GetContactsUseCase
+    private lateinit var mockGetContactsUseCase: GetContactsUseCase
+    private lateinit var mockGetSavedSeedUseCase: GetSavedSeedUseCase
+    private lateinit var mockDeleteSavedSeedUseCase: DeleteSavedSeedUseCase
     private lateinit var viewModel: ContactListViewModel
 
     @ExperimentalCoroutinesApi
@@ -38,27 +42,68 @@ class ContactListViewModelTest : KoinTest {
 
     @Before
     fun setUp() {
-        mockUseCase = mockk(relaxed = true)
+        mockGetContactsUseCase = mockk(relaxed = true)
+        mockGetSavedSeedUseCase = mockk(relaxed = true)
+        mockDeleteSavedSeedUseCase = mockk(relaxed = true)
         viewModel = ContactListViewModel()
-    }
-
-    @Test
-    fun `getContacts when there are result items are not empty`() = runTest(UnconfinedTestDispatcher()) {
         startKoin {
             modules(
                 module {
-                    single<GetContactsUseCase> { mockUseCase }
+                    single<GetContactsUseCase> { mockGetContactsUseCase }
+                    single<GetSavedSeedUseCase> { mockGetSavedSeedUseCase }
+                    single<DeleteSavedSeedUseCase> { mockDeleteSavedSeedUseCase }
                 })
         }
-        val flow = flowOf(PagingData.from(listOf(FeatureMockConstants.contact)))
-        coEvery { mockUseCase.getContacts("default") } returns flow
-        viewModel.getContacts()
+    }
 
-        advanceUntilIdle() // Yields to perform the registrations
-
-        val uiState: ListUIState = viewModel.uiState.value
-
-        assertEquals(1, flow.asSnapshot {  }.size)
+    @After
+    fun tearDown() {
         stopKoin()
     }
+
+    @Test
+    fun `getContacts when there are result items are not empty`() =
+        runTest(UnconfinedTestDispatcher()) {
+            val flow = flowOf(PagingData.from(listOf(FeatureMockConstants.contact)))
+            coEvery { mockGetContactsUseCase.execute("default") } returns flow
+            viewModel.getContacts()
+
+            advanceUntilIdle() // Yields to perform the registrations
+
+            assertEquals(1, flow.asSnapshot { }.size)
+            assertEquals(emptyList<String>(), viewModel.uiState.value.savedSeeds)
+            viewModel.getContacts("test")
+
+            advanceUntilIdle() // Yields to perform the registrations
+            assertEquals(listOf("test"), viewModel.uiState.value.savedSeeds)
+        }
+
+    @Test
+    fun `getSavedSeeds call useCase`() =
+        runTest(UnconfinedTestDispatcher()) {
+            coEvery { mockGetSavedSeedUseCase.execute() } returns listOf("default", "test", "seed")
+            viewModel.getSavedSeeds()
+            advanceUntilIdle() // Yields to perform the registrations
+
+            val uiState: ListUIState = viewModel.uiState.value
+            assertEquals(listOf("default", "test", "seed"), uiState.savedSeeds)
+        }
+
+    @Test
+    fun `deleteSavedSeed call useCase`() =
+        runTest(UnconfinedTestDispatcher()) {
+            coEvery { mockGetSavedSeedUseCase.execute() } returns listOf("default", "test", "seed")
+            coEvery { mockDeleteSavedSeedUseCase.execute("test") } answers {}
+
+            viewModel.getSavedSeeds()
+            advanceUntilIdle() // Yields to perform the registrations
+
+            assertEquals(listOf("default", "test", "seed"), viewModel.uiState.value.savedSeeds)
+
+
+            viewModel.deleteSavedSeed("test")
+            advanceUntilIdle() // Yields to perform the registrations
+
+            assertEquals(listOf("default", "seed"), viewModel.uiState.value.savedSeeds)
+        }
 }

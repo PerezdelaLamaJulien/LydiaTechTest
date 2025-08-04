@@ -3,6 +3,7 @@ package com.jperez.lydia.feature.composable
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -108,6 +109,28 @@ fun ContactListScreen(
                     }
                 }
             )
+
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                maxLines = 2
+                ) {
+                state.value.savedSeeds.forEach { seed ->
+                    SeedChip(
+                        seed = seed,
+                        isSelected = textFieldState.value == seed,
+                        onClick = {
+                            textFieldState.value = seed
+                            viewModel.getContacts(seed = seed)
+                        },
+                        onDelete = {
+                            textFieldState.value = "default"
+                            viewModel.getContacts()
+                            viewModel.deleteSavedSeed(seed)
+                        }
+                    )
+                }
+            }
+
 
             LazyColumn(
                 modifier = Modifier.fillMaxHeight(),

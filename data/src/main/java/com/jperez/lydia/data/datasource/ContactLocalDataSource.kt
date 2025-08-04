@@ -32,4 +32,19 @@ interface ContactLocalDataSource {
         pageSize: Int,
         contacts: List<ContactATO>
     )
+
+    /**
+     * Retrieves a list of saved seeds from the database.
+     *
+     * @return A list of strings representing the saved seeds.
+     */
+    suspend fun getsSavedSeeds(): List<String>
+
+    /**
+     * Delete saved seed from the database
+     *
+     * @param seed The seed to be deleted.
+     */
+    suspend fun deleteSavedSeed(seed: String)
+
 }

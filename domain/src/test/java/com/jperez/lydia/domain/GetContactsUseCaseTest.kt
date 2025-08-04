@@ -9,10 +9,12 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.koin.core.context.GlobalContext.startKoin
+import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.koin.test.KoinTest
 
@@ -29,10 +31,6 @@ class GetContactsUseCaseTest : KoinTest {
         mockRepository = mockk(relaxed = true)
         mockContactMapper = mockk(relaxed = true)
         getContactsUseCase = GetContactsUseCase()
-    }
-
-    @Test
-    fun `get contacts`() = runTest {
         startKoin {
             modules(
                 module {
@@ -40,11 +38,21 @@ class GetContactsUseCaseTest : KoinTest {
                     single<ContactMapper> { mockContactMapper }
                 })
         }
+    }
+
+    @After
+    fun tearDown() {
+        stopKoin()
+    }
+
+    @Test
+    fun `get contacts`() = runTest {
         val flow = flowOf(PagingData.from(listOf(DomainMockConstants.contactATO)))
 
         coEvery { mockRepository.getContacts("seed") } returns flow
         coEvery { mockContactMapper.mapTo(DomainMockConstants.contactATO) } returns DomainMockConstants.contact
-        val result = getContactsUseCase.getContacts("seed")
+        val result = getContactsUseCase.execute("seed")
         assertEquals(1, flow.asSnapshot {  }.size)
+
     }
 }
