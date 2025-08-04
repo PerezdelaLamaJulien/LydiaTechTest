@@ -17,37 +17,37 @@ import com.jperez.lydia.feature.theme.LydiaTheme
 @Composable
 fun HomePageScreen() {
     LydiaTheme {
-        var contactDetail : Contact?  by remember {
+        var contactDetail: Contact? by remember {
             mutableStateOf(null)
         }
-            AnimatedContent(
-                contactDetail,
-                transitionSpec = {
-                    if (targetState != null) {
-                        (fadeIn() + slideInHorizontally(initialOffsetX = { it })).togetherWith(
-                            fadeOut() + slideOutHorizontally(targetOffsetX = { -it })
-                        )
-                    } else {
-                        (fadeIn() + slideInHorizontally(initialOffsetX = { -it })).togetherWith(
-                            fadeOut() + slideOutHorizontally(targetOffsetX = { it })
-                        )
-                    }
-                }
-            ) { targetState ->
+        AnimatedContent(
+            contactDetail,
+            transitionSpec = {
                 if (targetState != null) {
-                    ContactDetailScreen(
-                        onBack = {
-                            contactDetail = null
-                        },
-                        contact = targetState,
+                    (fadeIn() + slideInHorizontally(initialOffsetX = { it })).togetherWith(
+                        fadeOut() + slideOutHorizontally(targetOffsetX = { -it })
                     )
                 } else {
-                    ContactListScreen(
-                        onShowDetails = { selectedContact ->
-                            contactDetail = selectedContact
-                        },
+                    (fadeIn() + slideInHorizontally(initialOffsetX = { -it })).togetherWith(
+                        fadeOut() + slideOutHorizontally(targetOffsetX = { it })
                     )
                 }
+            }
+        ) { targetState ->
+            if (targetState != null) {
+                ContactDetailScreen(
+                    onBack = {
+                        contactDetail = null
+                    },
+                    contact = targetState,
+                )
+            } else {
+                ContactListScreen(
+                    onShowDetails = { selectedContact ->
+                        contactDetail = selectedContact
+                    },
+                )
+            }
         }
     }
 }

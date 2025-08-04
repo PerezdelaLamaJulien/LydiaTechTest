@@ -1,5 +1,6 @@
 package com.jperez.lydia.feature.composable
 
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,7 +14,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -33,10 +33,13 @@ import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.jperez.lydia.domain.model.Contact
 import com.jperez.lydia.feature.viewmodel.ContactListViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flow
 import org.koin.androidx.compose.koinViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class,
+    ExperimentalCoroutinesApi::class
+)
 @Composable
 fun ContactListScreen(
     onShowDetails: (Contact) -> Unit,
@@ -52,24 +55,27 @@ fun ContactListScreen(
 
     Scaffold(modifier = Modifier.fillMaxSize(),
         topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text(
-                        "Contact List",
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                },
-            )
+            Column {
+                CenterAlignedTopAppBar(
+                    title = {
+                        Text(
+                            "Contact List",
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    },
+                )
+                ConnectivityBanner()
+            }
         }) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
                 .padding(
-                    horizontal = 8.dp
+                    all = 8.dp,
                 ),
-            verticalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.spacedBy(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
@@ -126,10 +132,23 @@ fun ContactListScreen(
                                 LoadingView()
                             }
                         }
+                        loadState.refresh is LoadState.Error -> {
+                            item {
+                                ErrorView(
+                                    onRetry = { pagingItems.retry() }
+                                )
+                            }
+                        }
+                        loadState.append is LoadState.Error -> {
+                            item {
+                                ErrorView(
+                                    onRetry = { pagingItems.retry() }
+                                )
+                            }
+                        }
                     }
                 }
             }
-
         }
     }
 }

@@ -34,17 +34,12 @@ class ContactListViewModel : ViewModel() {
      */
     fun getContacts(seed : String = "default") {
         viewModelScope.launch {
-            _uiState.value = uiState.value.copy(
-                isLoading = true,
-            )
-
             usecase.getContacts(seed = seed)
                 .distinctUntilChanged()
                 .cachedIn(viewModelScope)
                 .collect { pagingData ->
                     _uiState.value = uiState.value.copy(
                         items = pagingData,
-                        isLoading = false,
                     )
                 }
         }
