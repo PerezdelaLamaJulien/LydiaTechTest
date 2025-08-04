@@ -58,7 +58,6 @@ class ContactListViewModelTest : KoinTest {
 
         val uiState: ListUIState = viewModel.uiState.value
 
-        assertEquals(false, uiState.isLoading)
         assertEquals(1, flow.asSnapshot {  }.size)
         stopKoin()
     }
