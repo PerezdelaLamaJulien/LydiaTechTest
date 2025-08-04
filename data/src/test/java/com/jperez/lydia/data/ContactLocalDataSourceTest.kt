@@ -111,4 +111,23 @@ class ContactLocalDataSourceTest : KoinTest {
             mockContactDao.insertAll(any())
         }
     }
+
+    @Test
+    fun `getsSavedSeeds return list of seeds`() = runTest {
+        coEvery { mockPaginationInfoDao.getsSavedSeeds() } returns listOf("seed1", "seed2")
+
+        val result = localDataSource.getsSavedSeeds()
+
+        assertEquals(listOf("seed1", "seed2"), result)
+    }
+
+    @Test
+    fun `deleteSavedSeed call dao correctly`() = runTest {
+        coEvery { mockPaginationInfoDao.deleteBySeed("seed") } answers {}
+
+        localDataSource.deleteSavedSeed("seed")
+        coVerify(exactly = 1) {
+            mockPaginationInfoDao.deleteBySeed("seed")
+        }
+    }
 }

@@ -54,4 +54,11 @@ class ContactLocalDataSourceImpl : ContactLocalDataSource {
         )
     }
 
+    override suspend fun getsSavedSeeds(): List<String> {
+        return paginationInfoDao.getsSavedSeeds()
+    }
+
+    override suspend fun deleteSavedSeed(seed: String) {
+        paginationInfoDao.deleteBySeed(seed)
+    }
 }

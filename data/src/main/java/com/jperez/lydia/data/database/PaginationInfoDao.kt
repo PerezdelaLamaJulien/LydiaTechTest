@@ -15,4 +15,9 @@ interface PaginationInfoDao {
     @Insert
     suspend fun insertAll(vararg paginationInfoEntity: PaginationInfoEntity)
 
+    @Query("SELECT DISTINCT seed FROM paginationinfoentity")
+    suspend fun getsSavedSeeds(): List<String>
+
+    @Query("DELETE FROM paginationinfoentity WHERE seed = :seed")
+    suspend fun deleteBySeed(seed: String)
 }
